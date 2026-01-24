@@ -1,0 +1,30 @@
+{
+  "name": "url_shortening_service",
+  "version": "1.0.0",
+  "description": "Design and build a URL Shortening Service similar to Bitly using Fastify, PostgreSQL, and Prisma ORM.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hritikchauhanji/URL-Shortening-Service.git"
+  },
+  "keywords": [
+    "URL",
+    "SHORTENING",
+    "SERVICE",
+    "BACKEND",
+    "NODEJS",
+    "FASTIFY",
+    "PRISMA",
+    "POSTGRES",
+    "TYPESCRIPT"
+  ],
+  "author": "Hritik Chauhan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hritikchauhanji/URL-Shortening-Service/issues"
+  },
+  "homepage": "https://github.com/hritikchauhanji/URL-Shortening-Service#readme"
+}
