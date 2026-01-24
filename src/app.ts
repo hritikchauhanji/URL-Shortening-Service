@@ -1,7 +1,21 @@
 import fastify from "fastify";
 
-const app = fastify({
-  logger: true,
+const envToLogger = {
+  development: {
+    transport: {
+      target: "pino-pretty",
+      options: {
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname",
+      },
+    },
+  },
+  production: true,
+  test: false,
+};
+
+export const app = fastify({
+  logger: envToLogger.development ?? true,
 });
 
 app.get("/", async () => {
@@ -10,5 +24,3 @@ app.get("/", async () => {
     message: "Server is running",
   };
 });
-
-export { app };
