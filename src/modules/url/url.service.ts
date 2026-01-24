@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { createShortUrlSchema } from "./url.schema.js";
+import { checkShortCodeSchema, createShortUrlSchema } from "./url.schema.js";
 import AppError from "../../utils/appError.js";
 import { env } from "../../config/env.js";
 
@@ -54,4 +54,63 @@ export const createShortUrlService = async (
     shortUrl: `http://localhost:${env.port}/${shortCode}`,
     code: createdShortUrl.shortCode,
   };
+};
+
+export const redirectShortUrlService = async (
+  prisma: PrismaClient,
+  params: unknown,
+) => {
+  const { code } = checkShortCodeSchema.parse(params);
+
+  const url = await prisma.url.findUnique({
+    where: {
+      shortCode: code,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!url) {
+    throw new AppError("Short URL not found", 404);
+  }
+
+  const response = await prisma.url.update({
+    where: { id: url.id },
+    data: {
+      clicks: {
+        increment: 1,
+      },
+    },
+    select: {
+      originalUrl: true,
+    },
+  });
+
+  return response.originalUrl;
+};
+
+export const getUrlAnalyticsService = async (
+  prisma: PrismaClient,
+  params: unknown,
+) => {
+  const { code } = checkShortCodeSchema.parse(params);
+
+  const analytics = await prisma.url.findUnique({
+    where: {
+      shortCode: code,
+    },
+    select: {
+      originalUrl: true,
+      shortCode: true,
+      clicks: true,
+      createdAt: true,
+    },
+  });
+
+  if (!analytics) {
+    throw new AppError("Short Url not found", 404);
+  }
+
+  return analytics;
 };

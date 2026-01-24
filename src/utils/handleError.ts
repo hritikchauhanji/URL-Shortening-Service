@@ -2,7 +2,7 @@ import { ZodError } from "zod";
 import AppError from "./appError.js";
 import { FastifyReply } from "fastify";
 
-const handleError = (reply: FastifyReply, error: unknown) => {
+export const handleError = (reply: FastifyReply, error: unknown) => {
   if (error instanceof ZodError) {
     const errors: Record<string, string> = {};
 
@@ -30,5 +30,3 @@ const handleError = (reply: FastifyReply, error: unknown) => {
     message: "Internal Server Error",
   });
 };
-
-export { handleError };
