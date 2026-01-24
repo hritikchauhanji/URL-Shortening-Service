@@ -1,5 +1,6 @@
 import fastify from "fastify";
 import prismaPlugin from "./config/prisma.js";
+import urlRoutes from "./modules/url/url.routes.js";
 
 const envToLogger = {
   development: {
@@ -20,6 +21,7 @@ export const app = fastify({
 });
 
 app.register(prismaPlugin);
+app.register(urlRoutes);
 
 app.get("/", async () => {
   return {
