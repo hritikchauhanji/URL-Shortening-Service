@@ -10,3 +10,7 @@ export const checkShortCodeSchema = z.object({
     .length(6, "Code must be 6 character")
     .regex(/^[A-Za-z0-9]+$/, "Invalid short code"),
 });
+
+export type CreateShortUrlType = z.infer<typeof createShortUrlSchema>;
+
+export type CheckShortCodeType = z.infer<typeof checkShortCodeSchema>;

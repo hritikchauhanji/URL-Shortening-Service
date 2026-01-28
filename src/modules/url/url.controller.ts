@@ -5,52 +5,86 @@ import {
   redirectShortUrlService,
 } from "./url.service.js";
 import { handleError } from "../../utils/handleError.js";
+import {
+  checkShortCodeSchema,
+  CheckShortCodeType,
+  createShortUrlSchema,
+  CreateShortUrlType,
+} from "./url.schema.js";
+import { check, success } from "zod";
 
 export const createShortUrlController = async (
-  req: FastifyRequest,
+  req: FastifyRequest<{ Body: CreateShortUrlType }>,
   reply: FastifyReply,
 ) => {
   try {
-    const { shortUrl, code } = await createShortUrlService(
-      req.server.prisma,
-      req.body,
-    );
-    return reply.code(201).send({
-      shortUrl,
-      code,
-    });
+    const parsed = createShortUrlSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      throw parsed.error;
+    } else {
+      const result = await createShortUrlService(
+        req.server.prisma,
+        parsed.data,
+      );
+      return reply.code(201).send({
+        success: true,
+        message: "Short Url is created.",
+        data: {
+          result,
+        },
+      });
+    }
   } catch (error) {
     handleError(reply, error);
   }
 };
 
 export const redirectShortUrlController = async (
-  req: FastifyRequest,
+  req: FastifyRequest<{ Params: CheckShortCodeType }>,
   reply: FastifyReply,
 ) => {
   try {
-    const originalUrl = await redirectShortUrlService(
-      req.server.prisma,
-      req.params,
-    );
+    const parsed = checkShortCodeSchema.safeParse(req.params);
 
-    return reply.code(302).redirect(originalUrl);
+    if (!parsed.success) {
+      throw parsed.error;
+    } else {
+      const originalUrl = await redirectShortUrlService(
+        req.server.prisma,
+        parsed.data,
+      );
+
+      return reply.redirect(originalUrl, 302);
+    }
   } catch (error) {
     handleError(reply, error);
   }
 };
 
 export const getUrlAnalyticsController = async (
-  req: FastifyRequest,
+  req: FastifyRequest<{ Params: CheckShortCodeType }>,
   reply: FastifyReply,
 ) => {
   try {
-    const analytics = await getUrlAnalyticsService(
-      req.server.prisma,
-      req.params,
-    );
+    const parsed = checkShortCodeSchema.safeParse(req.params);
 
-    return reply.code(200).send(analytics);
+    if (!parsed.success) {
+      throw parsed.error;
+    } else {
+      const analytics = await getUrlAnalyticsService(
+        req.server.prisma,
+        parsed.data,
+      );
+
+      return reply.code(200).send({
+        success: true,
+        message: "Analytics fetch Successfully",
+        data: {
+          analytics,
+        },
+      });
+    }
   } catch (error) {
     handleError(reply, error);
   }

@@ -1,7 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { checkShortCodeSchema, createShortUrlSchema } from "./url.schema.js";
+import {
+  checkShortCodeSchema,
+  CheckShortCodeType,
+  createShortUrlSchema,
+  CreateShortUrlType,
+} from "./url.schema.js";
 import AppError from "../../utils/appError.js";
-import { env } from "../../config/env.js";
+import { env } from "../../config/env.config.js";
 
 const generateCode = (length: number = 6): string => {
   const characters =
@@ -15,10 +20,8 @@ const generateCode = (length: number = 6): string => {
 
 export const createShortUrlService = async (
   prisma: PrismaClient,
-  body: unknown,
+  body: CreateShortUrlType,
 ) => {
-  const { originalUrl } = createShortUrlSchema.parse(body);
-
   let shortCode = "";
   const attemps = 5;
 
@@ -42,7 +45,7 @@ export const createShortUrlService = async (
 
   const createdShortUrl = await prisma.url.create({
     data: {
-      originalUrl,
+      originalUrl: body.originalUrl,
       shortCode,
     },
     select: {
@@ -51,20 +54,18 @@ export const createShortUrlService = async (
   });
 
   return {
-    shortUrl: `http://localhost:${env.port}/${shortCode}`,
+    shortUrl: `http://localhost:${env.port}/api/${shortCode}`,
     code: createdShortUrl.shortCode,
   };
 };
 
 export const redirectShortUrlService = async (
   prisma: PrismaClient,
-  params: unknown,
+  params: CheckShortCodeType,
 ) => {
-  const { code } = checkShortCodeSchema.parse(params);
-
   const url = await prisma.url.findUnique({
     where: {
-      shortCode: code,
+      shortCode: params.code,
     },
     select: {
       id: true,
@@ -92,13 +93,11 @@ export const redirectShortUrlService = async (
 
 export const getUrlAnalyticsService = async (
   prisma: PrismaClient,
-  params: unknown,
+  params: CheckShortCodeType,
 ) => {
-  const { code } = checkShortCodeSchema.parse(params);
-
   const analytics = await prisma.url.findUnique({
     where: {
-      shortCode: code,
+      shortCode: params.code,
     },
     select: {
       originalUrl: true,
