@@ -54,7 +54,7 @@ export const createShortUrlService = async (
   });
 
   return {
-    shortUrl: `http://localhost:${env.port}/api/${shortCode}`,
+    shortUrl: `${env.baseUrl}/api/${shortCode}`,
     code: createdShortUrl.shortCode,
   };
 };
